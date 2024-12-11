@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#file = open("test", "r")
+# file = open("test", "r")
 file = open("input", "r")
 
 grid = [l.strip() for l in file]

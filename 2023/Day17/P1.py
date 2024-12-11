@@ -53,13 +53,16 @@ dists[0][0] = grid[0][0]
 pq = PriorityQueue()
 pq.push((0, 0, (1, 0), 1), dists[0][0])
 pq.push((0, 0, (0, 1), 1), dists[0][0])
+check = set()
 while not pq.is_empty():
     d, c = pq.pop()
     x, y, dire, cont = c
-    if d > dists[x][y]:
+    if str((x, y, dire, cont)) in check:
         continue
-    if cont != 3:
-        vx, vy = (x + dire[0], y + dire[1])
+    check.add(str((x, y, dire, cont)))
+    vx, vy = (x + dire[0], y + dire[1])
+
+    if cont < 3:
         if valid_coord(vx, vy, grid):
             if dists[vx][vy] > dists[x][y] + grid[vx][vy]:
                 dists[vx][vy] = dists[x][y] + grid[vx][vy]
@@ -78,5 +81,10 @@ while not pq.is_empty():
         if dists[rvx][rvy] > dists[x][y] + grid[rvx][rvy]:
             dists[rvx][rvy] = dists[x][y] + grid[rvx][rvy]
             pq.push((rvx, rvy, right, 1), dists[rvx][rvy])
+
+for i in range(len(dists)):
+    for j in range(len(dists[0])):
+        print(dists[i][j], end=" ")
+    print()
 
 print(dists[-1][-1])
