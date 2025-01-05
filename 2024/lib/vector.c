@@ -13,7 +13,7 @@
 #include "vector.h"
 
 void init_vector(vector** v, char type) {
-  assert(type == 'I' || type == 'c' || type == 'p');
+  assert(type == 'I' || type == 'c' || type == 'p' || type == 'v');
 
   *v = (vector*) malloc(sizeof(vector));
   (*v)->type = type;
@@ -27,6 +27,10 @@ void clear_vector(vector *v) {
     if(v->type == 'p') {
       for(uint64_t i = 0; i < v->curr_size; i++) {
         clear_pair(*(((pair**) v->data) + i));
+      }
+    } else if(v->type == 'v') {
+      for(uint64_t i = 0; i < v->curr_size; i++) {
+        clear_vector(*(((vector**) v->data) + i));
       }
     }
     free(v->data);
@@ -48,6 +52,10 @@ void push_back(vector* v, void* e) {
       v->data = malloc(sizeof(pair*));
       pair** aux = v->data;
       aux[0] = ((pair*) e);
+    } else if(v->type == 'v') {
+      v->data = malloc(sizeof(vector*));
+      vector** aux = v->data;
+      aux[0] = ((vector*) e);
     }
     v->curr_size = v->max_size = 1;
     return;
@@ -61,6 +69,8 @@ void push_back(vector* v, void* e) {
       v->data =  realloc(v->data, sizeof(char) * v->max_size);
     } else if(v->type == 'p') {
       v->data =  realloc(v->data, sizeof(pair*) * v->max_size);
+    } else if(v->type == 'v') {
+      v->data =  realloc(v->data, sizeof(vector*) * v->max_size);
     }
   }
 
@@ -73,6 +83,9 @@ void push_back(vector* v, void* e) {
   } else if(v->type == 'p') {
     pair** aux = v->data;
     aux[v->curr_size++] = ((pair*) e);
+  } else if(v->type == 'v') {
+    vector** aux = v->data;
+    aux[v->curr_size++] = ((vector*) e);
   }
 }
 
@@ -88,6 +101,8 @@ void* get(vector *v, uint64_t i) {
     return ((char*) v->data) + i;
   } else if(v->type == 'p') {
     return ((pair**) v->data) + i;
+  } else if(v->type == 'v') {
+    return ((vector**) v->data) + i;
   }
   return NULL;
 }
@@ -103,6 +118,9 @@ void set(vector *v, uint64_t i, void* e) {
   } else if(v->type == 'p') {
     pair** aux = v->data;
     aux[i] = ((pair*) e);
+  } else if(v->type == 'v') {
+    vector** aux = v->data;
+    aux[i] = ((vector*) e);
   } 
 }
 
@@ -123,6 +141,10 @@ void insert(vector *v, void* e, uint64_t i) {
       v->data = malloc(sizeof(pair*));
       pair** aux = v->data;
       aux[0] = ((pair*) e);
+    } else if(v->type == 'v') {
+      v->data = malloc(sizeof(vector*));
+      vector** aux = v->data;
+      aux[0] = ((vector*) e);
     }
     v->curr_size = v->max_size = 1;
     return;
@@ -136,6 +158,8 @@ void insert(vector *v, void* e, uint64_t i) {
       v->data = realloc(v->data, sizeof(char) * v->max_size);
     } else if(v->type == 'p') {
       v->data = realloc(v->data, sizeof(pair*) * v->max_size);
+    } else if(v->type == 'p') {
+      v->data = realloc(v->data, sizeof(vector*) * v->max_size);
     }
   }
 
@@ -158,6 +182,12 @@ void insert(vector *v, void* e, uint64_t i) {
       aux[j] = aux[j - 1];
     }
     aux[i] = ((pair*) e);
+  } else if(v->type == 'v') {
+    vector** aux = (vector**) v->data;
+    for(uint64_t j = v->curr_size - 1; j > i; j--) {
+      aux[j] = aux[j - 1];
+    }
+    aux[i] = ((vector*) e);
   }
 }
 
@@ -181,6 +211,11 @@ void erase(vector *v, uint64_t i) {
     for(uint64_t j = i; j < v->curr_size; j++) {
       aux[j] = aux[j + 1];
     }
+  } else if(v->type == 'p') {
+    vector** aux = (vector**) v->data;
+    for(uint64_t j = i; j < v->curr_size; j++) {
+      aux[j] = aux[j + 1];
+    }
   }
 }
 
@@ -193,6 +228,8 @@ void show_vector(vector *v) {
       printf("%c", *(((char*) v->data) + i));
     } else if(v->type == 'p') {
       show_pair(*(((pair**) v->data) + i));
+    } else if(v->type == 'v') {
+      show_vector(*(((vector**) v->data) + i));
     }
     printf(", ");
   }
@@ -202,6 +239,8 @@ void show_vector(vector *v) {
     printf("%c", *(((char*) v->data) + v->curr_size - 1));
   } else if(v->type == 'p') {
     show_pair(*(((pair**) v->data) + v->curr_size - 1));
+  } else if(v->type == 'v') {
+    show_vector(*(((vector**) v->data) + v->curr_size - 1));
   }
   printf("]");
 }
